@@ -1,15 +1,19 @@
 // netlify/functions/yahoo.js
-// Tiny CORS proxy for Yahoo Finance's chart API, so Signal Desk can use Yahoo
-// as a keyless data source in the browser (Yahoo sends no CORS headers).
+// Small allowlisted CORS proxy so Signal Desk can fetch data sources that don't
+// send CORS headers (Yahoo Finance, TraderMade). Keeps the filename "yahoo" so
+// existing proxy URLs keep working.
 //
-// Deploy: drop this file at  netlify/functions/yahoo.js  in your site repo,
-// then in Signal Desk → Settings set the CORS proxy field to:
+// Deploy: keep at  netlify/functions/yahoo.js  in your site repo. In Signal Desk
+// → Settings set the CORS proxy field to:
 //   https://YOUR-SITE.netlify.app/.netlify/functions/yahoo?u=
 //
-// The client calls:  <that URL> + encodeURIComponent(<yahoo chart url>)
-// so the full request looks like  ...functions/yahoo?u=https%3A%2F%2Fquery1...
+// The client calls:  <that URL> + encodeURIComponent(<source url>)
 
-const ALLOWED = ['query1.finance.yahoo.com', 'query2.finance.yahoo.com'];
+const ALLOWED = [
+  'query1.finance.yahoo.com',
+  'query2.finance.yahoo.com',
+  'marketdata.tradermade.com',
+];
 
 exports.handler = async (event) => {
   const cors = {

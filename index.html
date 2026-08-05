@@ -82,6 +82,17 @@
 
   main{padding:22px;max-width:1500px;margin:0 auto}
 
+  /* ---- Layout zones ---- */
+  .zone{margin-bottom:24px}
+  .zone:last-child{margin-bottom:0}
+  .cockpit{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:22px;align-items:start}
+  @media(max-width:1080px){.cockpit{grid-template-columns:1fr;gap:24px}}
+  .rail{display:flex;flex-direction:column;gap:16px;position:sticky;top:74px}
+  @media(max-width:1080px){.rail{position:static}}
+  .rail .panel{margin:0}
+  .rail .eyebrow{margin:0}
+  .analysis-grid .bt{margin-top:0;border-top:0;padding-top:0}
+
   /* ---- Instrument grid ---- */
   .eyebrow{
     font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
@@ -147,10 +158,12 @@
   .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:2px}
   .seg button{background:transparent;border:0;color:var(--muted);padding:6px 11px;border-radius:6px;font-size:12px;font-family:var(--mono)}
   .seg button.on{background:var(--raised);color:var(--text)}
-  .detail-body{display:grid;grid-template-columns:1.6fr 1fr;gap:0}
-  @media(max-width:900px){.detail-body{grid-template-columns:1fr}}
-  .chart-wrap{padding:16px 18px;border-right:1px solid var(--line);min-width:0}
-  @media(max-width:900px){.chart-wrap{border-right:0;border-bottom:1px solid var(--line)}}
+  .detail-body{display:flex;flex-direction:column}
+  .chart-wrap{padding:16px 18px;border-bottom:1px solid var(--line);min-width:0}
+  .analysis{padding:16px 18px}
+  .analysis-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:22px}
+  @media(max-width:820px){.analysis-grid{grid-template-columns:1fr;gap:18px}}
+  .analysis-grid > div{min-width:0}
   #chart{width:100%;height:320px;display:block}
   .chart-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
   .chart-legend i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:5px}
@@ -266,73 +279,84 @@
 </div>
 
 <main>
-  <div class="eyebrow">Watchlist · live confluence</div>
-  <div class="grid" id="cards"></div>
+  <section class="zone">
+    <div class="eyebrow">Watchlist · live confluence</div>
+    <div class="grid" id="cards"></div>
+  </section>
 
-  <div class="detail" id="detail">
-    <div class="detail-head">
-      <div>
-        <div class="sym" id="dSym">—</div>
-      </div>
-      <div style="text-align:right">
-        <div class="price mono" id="dPrice">—</div>
-        <div class="chg mono" id="dChg">—</div>
-      </div>
-      <div class="spacer" style="flex:1"></div>
-      <div class="seg" id="dTf"></div>
-    </div>
-    <div class="detail-body">
-      <div class="chart-wrap">
-        <canvas id="chart"></canvas>
-        <div class="chart-legend">
-          <span><i style="background:var(--accent)"></i>EMA fast</span>
-          <span><i style="background:var(--gold)"></i>EMA slow</span>
-          <span><i style="background:var(--muted)"></i>EMA trend</span>
-          <span><i style="background:var(--long)"></i>entry / target</span>
-          <span><i style="background:var(--short)"></i>stop</span>
+  <div class="cockpit">
+    <section class="zone" style="margin-bottom:0">
+      <div class="eyebrow">Analysis · selected instrument</div>
+      <div class="detail" id="detail">
+        <div class="detail-head">
+          <div>
+            <div class="sym" id="dSym">—</div>
+          </div>
+          <div style="text-align:right">
+            <div class="price mono" id="dPrice">—</div>
+            <div class="chg mono" id="dChg">—</div>
+          </div>
+          <div class="spacer" style="flex:1"></div>
+          <div class="seg" id="dTf"></div>
+        </div>
+        <div class="detail-body">
+          <div class="chart-wrap">
+            <canvas id="chart"></canvas>
+            <div class="chart-legend">
+              <span><i style="background:var(--accent)"></i>EMA fast</span>
+              <span><i style="background:var(--gold)"></i>EMA slow</span>
+              <span><i style="background:var(--muted)"></i>EMA trend</span>
+              <span><i style="background:var(--long)"></i>entry / target</span>
+              <span><i style="background:var(--short)"></i>stop</span>
+            </div>
+          </div>
+          <div class="analysis">
+            <div class="analysis-grid">
+              <div>
+                <p class="an-title">Confluence breakdown</p>
+                <div id="factors"></div>
+              </div>
+              <div class="bt">
+                <p class="an-title" style="margin-bottom:2px">Backtest · strategy on history</p>
+                <div class="hint">In-sample / out-of-sample split · next-bar entry · ATR stop · 2R target. Illustrative only.</div>
+                <div class="bt-grid" id="btGrid"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="analysis">
-        <p class="an-title">Confluence breakdown</p>
-        <div id="factors"></div>
+    </section>
 
-        <div class="bt">
-          <p class="an-title" style="margin-bottom:2px">Backtest · this strategy on history</p>
-          <div class="hint">In-sample, next-bar entry, ATR stop, 2R target. Costs applied. Illustrative only.</div>
-          <div class="bt-grid" id="btGrid"></div>
+    <aside class="rail">
+      <div class="eyebrow">Monitor</div>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <div><h2 class="section">Alert log</h2><div class="hint">Fires only on a change of signal — no repeat spam. <span id="cloudBadge" class="cloud-badge">local only</span></div></div>
+          <button class="ctrl" id="clearLog">Clear</button>
+        </div>
+        <div class="log" id="log"><div class="log-empty">No alerts yet. Signals will appear here as conditions align.</div></div>
+      </div>
+
+      <div class="panel">
+        <h2 class="section">Position sizer</h2>
+        <div class="hint">Turns the current stop distance into a size that respects your risk cap.</div>
+        <div style="margin-top:12px">
+          <div class="risk-row"><label>Account balance</label><input class="ctrl mono" id="rkBal" value="10000"></div>
+          <div class="risk-row"><label>Risk per trade %</label><input class="ctrl mono" id="rkPct" value="1"></div>
+          <div class="risk-row"><label>Instrument</label>
+            <select class="ctrl" id="rkInst"></select>
+          </div>
+        </div>
+        <div class="risk-out">
+          <div class="k">Risk amount / stop distance</div>
+          <div class="v" id="rkRisk">—</div>
+        </div>
+        <div class="risk-out" style="background:var(--long-dim);border-color:#2a6b4a;margin-top:8px">
+          <div class="k" style="color:#9bedc4">Suggested position size</div>
+          <div class="v" id="rkSize" style="color:#eafff4">—</div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div class="cols">
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><h2 class="section">Alert log</h2><div class="hint">Fires only when a signal state changes — no repeat spam. <span id="cloudBadge" class="cloud-badge">local only</span></div></div>
-        <button class="ctrl" id="clearLog">Clear</button>
-      </div>
-      <div class="log" id="log"><div class="log-empty">No alerts yet. Signals will appear here as conditions align.</div></div>
-    </div>
-
-    <div class="panel">
-      <h2 class="section">Position sizer</h2>
-      <div class="hint">Turns the current stop distance into a size that respects your risk cap.</div>
-      <div style="margin-top:12px">
-        <div class="risk-row"><label>Account balance</label><input class="ctrl mono" id="rkBal" value="10000"></div>
-        <div class="risk-row"><label>Risk per trade %</label><input class="ctrl mono" id="rkPct" value="1"></div>
-        <div class="risk-row"><label>Instrument</label>
-          <select class="ctrl" id="rkInst"></select>
-        </div>
-      </div>
-      <div class="risk-out">
-        <div class="k">Risk amount / stop distance</div>
-        <div class="v" id="rkRisk">—</div>
-      </div>
-      <div class="risk-out" style="background:var(--long-dim);border-color:#2a6b4a;margin-top:8px">
-        <div class="k" style="color:#9bedc4">Suggested position size</div>
-        <div class="v" id="rkSize" style="color:#eafff4">—</div>
-      </div>
-    </div>
+    </aside>
   </div>
 
   <footer>
@@ -354,6 +378,8 @@
       <option value="demo">Demo — synthetic, no key</option>
       <option value="twelvedata">Twelve Data — live, key needed</option>
       <option value="alphavantage">Alpha Vantage — live, key needed</option>
+      <option value="fmp">Financial Modeling Prep — live, key needed</option>
+      <option value="tradermade">TraderMade — live CFD/FX, key + proxy</option>
       <option value="yahoo">Yahoo Finance — live, no key (needs proxy)</option>
     </select>
     <div class="hint">Covers US30, NASDAQ, GOLD and EUR/USD. If a source can't serve a symbol, the fallback chain tries the next one.</div>
@@ -377,6 +403,18 @@
     <label>Alpha Vantage API key</label>
     <input class="ctrl" id="setAv" placeholder="free key at alphavantage.co — EUR/USD direct; indices/gold via ETF proxies">
     <div class="hint">Free tier is ~25 requests/day and serves EUR/USD directly. Indices &amp; gold use ETF proxies (DIA, QQQ, GLD) — close, but not the exact instrument.</div>
+  </div>
+
+  <div class="field">
+    <label>Financial Modeling Prep API key</label>
+    <input class="ctrl" id="setFmp" placeholder="free key at financialmodelingprep.com — native Dow, Nasdaq, gold, EUR/USD">
+    <div class="hint">Native coverage of all four instruments (no proxies) and a real 4-hour interval. Free-tier symbol access varies; anything not covered falls through to the next source.</div>
+  </div>
+
+  <div class="field">
+    <label>TraderMade API key</label>
+    <input class="ctrl" id="setTm" placeholder="free key at tradermade.com — native US30/US100 CFDs + FX">
+    <div class="hint">Near-real-time CFD indices (US30, US100), gold and EUR/USD. Routes through your CORS proxy, so set that field below and redeploy the updated proxy (it now allows TraderMade's domain). Free tier has a modest monthly request cap — best as a fallback, not a constant primary.</div>
   </div>
 
   <div class="field">
@@ -470,10 +508,12 @@ const INSTRUMENTS = [
 const PROVIDER_MAPS = {
   twelvedata:   { US30:'US30',  NAS100:'NDX',  GOLD:'XAU/USD',  EURUSD:'EUR/USD' },
   alphavantage: { US30:'DIA',   NAS100:'QQQ',  GOLD:'GLD',      EURUSD:'EUR/USD' }, // DIA/QQQ/GLD = ETF proxies
-  yahoo:        { US30:'^DJI',  NAS100:'^NDX', GOLD:'GC=F',     EURUSD:'EURUSD=X' },
+  fmp:          { US30:'^DJI',  NAS100:'^NDX', GOLD:'XAUUSD',   EURUSD:'EURUSD' },   // native index/forex/metal
+  tradermade:   { US30:'US30',  NAS100:'US100',GOLD:'XAUUSD',   EURUSD:'EURUSD' },   // CFD/FX, near-real-time
+  yahoo:        { US30:'YM=F',  NAS100:'NQ=F', GOLD:'GC=F',     EURUSD:'EURUSD=X' }, // =F futures = continuous/near-live
 };
 const PROXY_SYMBOLS = { alphavantage:['US30','NAS100','GOLD'] }; // flagged as proxies in the UI
-const PROVIDER_LABEL = { demo:'Demo', twelvedata:'Twelve Data', alphavantage:'Alpha Vantage', yahoo:'Yahoo' };
+const PROVIDER_LABEL = { demo:'Demo', twelvedata:'Twelve Data', alphavantage:'Alpha Vantage', fmp:'FMP', tradermade:'TraderMade', yahoo:'Yahoo' };
 const DEFAULT_MAP = PROVIDER_MAPS.twelvedata;
 
 const S = {
@@ -481,6 +521,8 @@ const S = {
   fallback: store.get('sd.fallback',1),        // auto-chain to other live sources on failure
   key:      store.get('sd.key',''),            // Twelve Data key
   avKey:    store.get('sd.avKey',''),          // Alpha Vantage key
+  fmpKey:   store.get('sd.fmpKey',''),         // Financial Modeling Prep key
+  tmKey:    store.get('sd.tmKey',''),           // TraderMade key
   cors:     store.get('sd.cors',''),           // CORS proxy prefix for Yahoo (or Netlify function URL)
   interval: store.get('sd.interval',300000),
   tf:       store.get('sd.tf','15min'),
@@ -758,6 +800,52 @@ async function avFetch(instId, tf){
   });
 }
 
+// Financial Modeling Prep — native indices/forex/metals. CORS-friendly.
+const FMP_INT = { '5min':'5min','15min':'15min','30min':'30min','1h':'1hour','2h':'1hour','4h':'4hour','1day':'1day','1week':'1day' };
+async function fmFetch(instId, tf){
+  if(!S.fmpKey) throw new Error('no FMP key');
+  const sym = (S.maps.fmp||{})[instId] || PROVIDER_MAPS.fmp[instId];
+  const iv = FMP_INT[tf] || '15min';
+  let url;
+  if(iv==='1day'){
+    url = `https://financialmodelingprep.com/api/v3/historical-price-full/${encodeURIComponent(sym)}?timeseries=400&apikey=${encodeURIComponent(S.fmpKey)}`;
+  } else {
+    url = `https://financialmodelingprep.com/api/v3/historical-chart/${iv}/${encodeURIComponent(sym)}?apikey=${encodeURIComponent(S.fmpKey)}`;
+  }
+  const j = await (await fetch(url)).json();
+  if(j['Error Message']) throw new Error(j['Error Message']);
+  const rows = Array.isArray(j) ? j : (j.historical || []);
+  if(!rows.length) throw new Error('no data (check plan/symbol)');
+  // FMP returns newest-first; normalise to oldest-first
+  return rows.slice(0,400).map(b=>({
+    t:new Date(b.date).getTime(), o:+b.open, h:+b.high, l:+b.low, c:+b.close, v:+(b.volume||0)
+  })).reverse();
+}
+
+// TraderMade — near-real-time CFD indices + FX. Routes via the CORS proxy (like Yahoo).
+const TM_INT  = { '5min':['minute',5],'15min':['minute',15],'30min':['minute',30],'1h':['hourly',1],'2h':['hourly',2],'4h':['hourly',4],'1day':['daily',1],'1week':['daily',1] };
+const TM_DAYS = { '5min':7,'15min':12,'30min':22,'1h':28,'2h':50,'4h':90,'1day':420,'1week':420 };
+function tmDate(d){ const p=n=>String(n).padStart(2,'0');
+  return `${d.getUTCFullYear()}-${p(d.getUTCMonth()+1)}-${p(d.getUTCDate())}-${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`; }
+async function tmFetch(instId, tf){
+  if(!S.tmKey) throw new Error('no TraderMade key');
+  const sym = (S.maps.tradermade||{})[instId] || PROVIDER_MAPS.tradermade[instId];
+  const [interval, period] = TM_INT[tf] || ['minute',15];
+  const end = new Date(), start = new Date(end.getTime() - (TM_DAYS[tf]||12)*86400000);
+  let raw = `https://marketdata.tradermade.com/api/v1/timeseries?currency=${encodeURIComponent(sym)}`+
+            `&api_key=${encodeURIComponent(S.tmKey)}&start_date=${tmDate(start)}&end_date=${tmDate(end)}&format=records&interval=${interval}`;
+  if(interval!=='daily') raw += `&period=${period}`;
+  const url = S.cors ? (S.cors + encodeURIComponent(raw)) : raw; // TraderMade may block browser CORS: prefer the proxy
+  const j = await (await fetch(url)).json();
+  if(j.error || (j.message && !j.quotes)) throw new Error(j.error || j.message || 'no data');
+  const q = (j.quotes || []).filter(b=>b.close!=null);
+  if(!q.length) throw new Error('no data (check symbol/plan)');
+  return q.map(b=>({
+    t:new Date(String(b.date).replace(' ','T')+'Z').getTime(),
+    o:+b.open, h:+b.high, l:+b.low, c:+b.close, v:0
+  })).sort((a,b)=>a.t-b.t).slice(-400);
+}
+
 async function yhFetch(instId, tf){
   const sym = (S.maps.yahoo||{})[instId] || PROVIDER_MAPS.yahoo[instId];
   const iv = YH_INT[tf] || '15m';
@@ -776,12 +864,12 @@ async function yhFetch(instId, tf){
   return out;
 }
 
-const FETCHERS = { twelvedata:tdFetch, alphavantage:avFetch, yahoo:yhFetch, demo:demoSeries };
+const FETCHERS = { twelvedata:tdFetch, alphavantage:avFetch, fmp:fmFetch, tradermade:tmFetch, yahoo:yhFetch, demo:demoSeries };
 
 // Build the ordered provider chain: primary first, then the other live sources (if fallback on), demo last.
 function providerChain(){
   if(S.provider==='demo') return ['demo'];
-  const live = ['twelvedata','alphavantage','yahoo'];
+  const live = ['twelvedata','alphavantage','fmp','yahoo','tradermade'];
   const chain = [S.provider, ...(S.fallback ? live.filter(p=>p!==S.provider) : [])];
   chain.push('demo');
   return chain;
@@ -1189,6 +1277,8 @@ function openDrawer(){
   document.getElementById('setFallback').value=String(S.fallback);
   document.getElementById('setKey').value=S.key;
   document.getElementById('setAv').value=S.avKey;
+  document.getElementById('setFmp').value=S.fmpKey;
+  document.getElementById('setTm').value=S.tmKey;
   document.getElementById('setCors').value=S.cors;
   document.getElementById('setInterval').value=String(S.interval);
   document.getElementById('setThresh').value=S.thresh; document.getElementById('thVal').textContent=S.thresh;
@@ -1214,6 +1304,8 @@ document.getElementById('saveSettings').addEventListener('click',()=>{
   S.fallback=+document.getElementById('setFallback').value;
   S.key=document.getElementById('setKey').value.trim();
   S.avKey=document.getElementById('setAv').value.trim();
+  S.fmpKey=document.getElementById('setFmp').value.trim();
+  S.tmKey=document.getElementById('setTm').value.trim();
   S.cors=document.getElementById('setCors').value.trim();
   S.interval=+document.getElementById('setInterval').value;
   S.thresh=+document.getElementById('setThresh').value;
@@ -1223,7 +1315,7 @@ document.getElementById('saveSettings').addEventListener('click',()=>{
   const cur=document.getElementById('symMapLabel').dataset.p;
   if(cur && S.maps[cur]) document.querySelectorAll('[data-map]').forEach(inp=>{ S.maps[cur][inp.dataset.map]=inp.value.trim(); });
   store.set('sd.provider',S.provider); store.set('sd.fallback',S.fallback);
-  store.set('sd.key',S.key); store.set('sd.avKey',S.avKey); store.set('sd.cors',S.cors);
+  store.set('sd.key',S.key); store.set('sd.avKey',S.avKey); store.set('sd.fmpKey',S.fmpKey); store.set('sd.tmKey',S.tmKey); store.set('sd.cors',S.cors);
   store.set('sd.interval',S.interval); store.set('sd.thresh',S.thresh);
   store.set('sd.atr',S.atrMult); store.set('sd.htf',S.htf); store.set('sd.maps',S.maps);
   if(S.provider!=='demo' && 'Notification' in window && Notification.permission==='default') Notification.requestPermission();
